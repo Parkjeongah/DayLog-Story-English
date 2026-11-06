@@ -1,6 +1,7 @@
 import React from 'react';
 import { BookOpen, Mic, Bookmark, Sparkles, Flame, PlusCircle, History } from 'lucide-react';
 import { StudyStats } from '../types';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
   currentTab: 'create' | 'stories' | 'shadowing' | 'vocab';
@@ -66,11 +67,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* New Episode Action Button */}
+          {/* Actions: PWA Install + New Episode */}
           <div className="flex items-center space-x-2">
+            <PWAInstallButton variant="navbar" />
+
             <button
               onClick={onNewEpisodeClick}
-              className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all active:scale-95"
+              className="inline-flex items-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all active:scale-95"
             >
               <PlusCircle className="w-4 h-4" />
               <span>일과 기록하기</span>

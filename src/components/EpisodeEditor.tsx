@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Mic, MicOff, Calendar, Flame, Coffee, Smile, Frown, Compass, Heart, Loader2, ArrowRight } from 'lucide-react';
 import { Mood, Category, EnglishStyle, Episode } from '../types';
 import { createSpeechRecognizer, isSpeechRecognitionSupported } from '../utils/speech';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface EpisodeEditorProps {
   onStoryCreated: (episode: Episode) => void;
@@ -216,6 +217,11 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
             ✍️
           </div>
         </div>
+      </div>
+
+      {/* PWA Mobile App Install Card */}
+      <div className="mb-6">
+        <PWAInstallButton variant="banner" />
       </div>
 
       {/* Main Form */}
