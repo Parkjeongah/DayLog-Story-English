@@ -1,3 +1,6 @@
+// Enforce disabled HMR in AI Studio sandbox environment to prevent WebSocket disconnection errors
+process.env.DISABLE_HMR = 'true';
+
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -396,6 +399,7 @@ async function startServer() {
       server: {
         middlewareMode: true,
         hmr: false,
+        ws: false,
       },
       appType: 'spa',
     });
