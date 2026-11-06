@@ -1,0 +1,7 @@
+{
+  "name": "DayLog Story English (데일리 에피소드 영어 스터디)",
+  "description": "하루 일과와 일상 에피소드를 생생한 영어 스토리로 바꾸어 섀도잉, 원어민 뉘앙스, 퀴즈로 공부하는 영어 학습 앱",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
