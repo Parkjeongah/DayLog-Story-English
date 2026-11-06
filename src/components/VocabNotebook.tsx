@@ -8,6 +8,7 @@ import {
   RotateCw,
   Sparkles,
   Layers,
+  List,
   ChevronLeft,
   ChevronRight,
   Trash2,
@@ -79,17 +80,26 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
 
         {/* View Mode Toggle */}
         <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-2xl self-start sm:self-auto">
+
           <button
+            role="tab"
+            aria-selected={activeMode === 'list'}
+            aria-label="단어 목록 보기 모드로 전환"
+            title="단어 목록 보기"
             onClick={() => setActiveMode('list')}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               activeMode === 'list' ? 'bg-white shadow-xs text-indigo-700' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Layers className="w-3.5 h-3.5" />
-            <span>목록 모드 ({savedWords.length})</span>
+            <List className="w-3.5 h-3.5" />
+            <span>단어 목록 ({filteredWords.length})</span>
           </button>
 
           <button
+            role="tab"
+            aria-selected={activeMode === 'flashcard'}
+            aria-label="플래시카드 암기 모드로 전환"
+            title="플래시카드 암기"
             onClick={() => {
               setActiveMode('flashcard');
               setIsFlipped(false);
@@ -115,12 +125,13 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="표현 또는 한국어 뜻 검색..."
+            aria-label="단어장 표현 또는 한국어 뜻 검색"
             className="w-full pl-9 pr-4 py-2 bg-white rounded-xl border border-slate-200 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none pb-1 sm:pb-0">
+        <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none pb-1 sm:pb-0" role="toolbar" aria-label="단어 카테고리 필터">
           {[
             { id: 'all', label: '전체' },
             { id: 'idiom', label: '관용구 (Idiom)' },
@@ -131,6 +142,9 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
+              aria-pressed={selectedCategory === cat.id}
+              aria-label={`${cat.label} 표현만 필터링`}
+              title={`${cat.label} 필터링`}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                 selectedCategory === cat.id
                   ? 'bg-indigo-600 text-white shadow-xs'
@@ -154,8 +168,22 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
             <div className="space-y-6">
               {/* Card Container */}
               <div
+                role="button"
+                tabIndex={0}
+                aria-label={
+                  isFlipped
+                    ? `플래시카드 앞면(영어 표현: ${currentFlashcard.phrase}) 보기`
+                    : `플래시카드 뒷면(한국어 뜻: ${currentFlashcard.meaning}과 원어민 뉘앙스) 확인하기`
+                }
+                title="클릭하거나 엔터를 눌러 플래시카드를 뒤집습니다"
                 onClick={() => setIsFlipped(!isFlipped)}
-                className="w-full min-h-[300px] bg-gradient-to-br from-white to-slate-50 rounded-3xl border-2 border-indigo-200/80 p-8 shadow-md flex flex-col justify-between cursor-pointer hover:border-indigo-400 transition-all text-center relative select-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIsFlipped(!isFlipped);
+                  }
+                }}
+                className="w-full min-h-[300px] bg-gradient-to-br from-white to-slate-50 rounded-3xl border-2 border-indigo-200/80 p-8 shadow-md flex flex-col justify-between cursor-pointer hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-center relative select-none"
               >
                 {/* Top Badge */}
                 <div className="flex items-center justify-between text-xs text-slate-400">
@@ -200,6 +228,8 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
                       e.stopPropagation();
                       handleSpeak(currentFlashcard.phrase);
                     }}
+                    aria-label={`"${currentFlashcard.phrase}" 원어민 발음 듣기`}
+                    title="원어민 발음 듣기"
                     className="p-2 rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 flex items-center space-x-1"
                   >
                     <Volume2 className="w-3.5 h-3.5" />
@@ -216,7 +246,9 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
               <div className="flex items-center justify-between">
                 <button
                   onClick={handlePrevCard}
-                  className="flex items-center space-x-1 px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  aria-label="이전 플래시카드 단어로 이동"
+                  title="이전 카드 보기"
+                  className="flex items-center space-x-1 px-4 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>이전 카드</span>
@@ -224,6 +256,12 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
 
                 <button
                   onClick={() => onToggleMastered(currentFlashcard.id)}
+                  aria-label={
+                    currentFlashcard.mastered
+                      ? `"${currentFlashcard.phrase}" 복습 필요 상태로 변경`
+                      : `"${currentFlashcard.phrase}" 완전 암기 완료로 표시`
+                  }
+                  title={currentFlashcard.mastered ? '복습 필요 상태로 변경' : '완전 암기 완료로 표시'}
                   className={`flex items-center space-x-1 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                     currentFlashcard.mastered
                       ? 'bg-emerald-500 text-white'
@@ -236,7 +274,9 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
 
                 <button
                   onClick={handleNextCard}
-                  className="flex items-center space-x-1 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700"
+                  aria-label="다음 플래시카드 단어로 이동"
+                  title="다음 카드 보기"
+                  className="flex items-center space-x-1 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors"
                 >
                   <span>다음 카드</span>
                   <ChevronRight className="w-4 h-4" />
@@ -299,7 +339,8 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
                   <button
                     onClick={() => handleSpeak(word.phrase)}
                     className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors"
-                    title="발음 듣기"
+                    aria-label={`"${word.phrase}" 발음 듣기`}
+                    title={`"${word.phrase}" 발음 듣기`}
                   >
                     <Volume2 className="w-4 h-4" />
                   </button>
@@ -311,6 +352,11 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
                         ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
                         : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                     }`}
+                    aria-label={
+                      word.mastered
+                        ? `"${word.phrase}" 복습 필요 상태로 변경`
+                        : `"${word.phrase}" 완전 암기 완료로 표시`
+                    }
                     title={word.mastered ? '복습 필요 상태로 변경' : '마스터 완료로 표시'}
                   >
                     <CheckCircle className="w-4 h-4" />
@@ -319,6 +365,7 @@ export const VocabNotebook: React.FC<VocabNotebookProps> = ({
                   <button
                     onClick={() => onRemoveWord(word.id)}
                     className="p-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
+                    aria-label={`"${word.phrase}" 단어장에서 삭제`}
                     title="단어장에서 삭제"
                   >
                     <Trash2 className="w-4 h-4" />

@@ -53,6 +53,8 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
 
         <button
           onClick={onCreateNewClick}
+          aria-label="새로운 오늘 일과 기록 화면으로 이동"
+          title="새로운 일과 기록하기"
           className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm active:scale-95 self-start sm:self-auto"
         >
           <Sparkles className="w-4 h-4" />
@@ -70,12 +72,13 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="제목, 내용, 표현 검색..."
+            aria-label="에피소드 제목, 본문 내용, 핵심 영어 표현 검색"
             className="w-full pl-9 pr-4 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
         </div>
 
         {/* Category & Mood Filter Row */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
+        <div className="flex flex-wrap items-center gap-2 pt-1" role="toolbar" aria-label="에피소드 분야 필터">
           <span className="text-xs font-bold text-slate-400 flex items-center space-x-1">
             <Filter className="w-3 h-3" />
             <span>분야:</span>
@@ -92,6 +95,9 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
+              aria-pressed={selectedCategory === cat.id}
+              aria-label={`${cat.label} 분야 에피소드만 필터링`}
+              title={`${cat.label} 필터링`}
               className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                 selectedCategory === cat.id
                   ? 'bg-slate-900 text-white'
@@ -118,8 +124,17 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
           filtered.map((ep) => (
             <div
               key={ep.id}
+              role="article"
+              tabIndex={0}
+              aria-label={`"${ep.title}" (${ep.koreanTitle}) 에피소드 스토리 열기`}
               onClick={() => onSelectEpisode(ep)}
-              className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group space-y-3"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelectEpisode(ep);
+                }
+              }}
+              className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs hover:border-indigo-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer group space-y-3"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -147,6 +162,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
                       }
                     }}
                     className="p-1.5 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                    aria-label={`"${ep.title}" 에피소드 영구 삭제`}
                     title="에피소드 삭제"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -195,6 +211,8 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
                       e.stopPropagation();
                       onGoToShadowing(ep.id);
                     }}
+                    aria-label={`"${ep.title}" 섀도잉 발음 연습 시작하기`}
+                    title="섀도잉 연습 시작"
                     className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold transition-colors"
                   >
                     <Mic className="w-3.5 h-3.5" />

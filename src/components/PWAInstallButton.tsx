@@ -31,8 +31,9 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
       {variant === 'navbar' ? (
         <button
           onClick={handleInstallClick}
+          aria-label="안드로이드 폰 홈 화면에 앱 설치하기"
           className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition-all shadow-xs active:scale-95"
-          title="안드로이드 폰 홈 화면에 앱으로 설치하기"
+          title="안드로이드 폰 홈 화면에 앱으로 설치하여 전체 화면으로 실행하기"
         >
           <Smartphone className="w-3.5 h-3.5 text-emerald-600" />
           <span>앱 설치</span>
@@ -52,6 +53,8 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
           </div>
           <button
             onClick={handleInstallClick}
+            aria-label="안드로이드 앱 홈 화면 설치 창 열기"
+            title="스마트폰 홈 화면에 바로가기 앱으로 설치하기"
             className="px-4 py-2 rounded-xl bg-white text-indigo-950 font-extrabold text-xs shrink-0 shadow-sm hover:bg-indigo-50 transition-all active:scale-95"
           >
             설치하기
@@ -61,7 +64,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
 
       {/* Android & Mobile Installation Guide Modal */}
       {showGuideModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in" role="dialog" aria-modal="true" aria-label="앱 설치 안내">
           <div className="w-full max-w-sm max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl text-slate-900 border border-slate-100 space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <div className="flex items-center space-x-2">
@@ -72,7 +75,9 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
               </div>
               <button
                 onClick={() => setShowGuideModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                aria-label="앱 설치 안내 팝업 닫기"
+                title="안내창 닫기"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -126,6 +131,8 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
                   await install();
                   setShowGuideModal(false);
                 }}
+                aria-label="지금 즉시 앱 설치 팝업 띄우기"
+                title="브라우저 설치 팝업 실행"
                 className="w-full py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition-colors shadow-sm"
               >
                 지금 즉시 설치 창 띄우기
@@ -134,6 +141,8 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
 
             <button
               onClick={() => setShowGuideModal(false)}
+              aria-label="안내창 닫기"
+              title="닫기"
               className="w-full py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold text-xs hover:bg-slate-200 transition-colors"
             >
               닫기

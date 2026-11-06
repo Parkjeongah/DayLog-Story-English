@@ -181,19 +181,23 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-sm relative overflow-hidden">
         {/* Progress Dots */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-1.5">
+          <div className="flex items-center space-x-1.5" role="tablist" aria-label="섀도잉 문장 목록">
             {sentences.map((st, i) => (
-              <div
+              <button
+                type="button"
                 key={st.id}
+                role="tab"
+                aria-selected={i === currentIndex}
+                aria-label={`${i + 1}번째 문장: "${st.en.slice(0, 25)}..."${completedSentenceIds.has(st.id) ? ' (학습 완료)' : ''}`}
                 onClick={() => setCurrentIndex(i)}
-                className={`h-2 rounded-full cursor-pointer transition-all ${
+                className={`h-2 rounded-full cursor-pointer transition-all border-none p-0 ${
                   i === currentIndex
                     ? 'w-8 bg-indigo-600'
                     : completedSentenceIds.has(st.id)
                     ? 'w-4 bg-emerald-500'
                     : 'w-2 bg-slate-200 hover:bg-slate-300'
                 }`}
-                title={`문장 ${i + 1}`}
+                title={`문장 ${i + 1} (${completedSentenceIds.has(st.id) ? '완료됨' : '미완료'})`}
               />
             ))}
           </div>
@@ -235,6 +239,8 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
         <div className="flex items-center justify-center space-x-3 pt-6 border-t border-slate-100">
           <button
             onClick={() => handleListen(1.0)}
+            aria-label="현재 문장 원어민 보통 속도(1.0배속)로 듣기"
+            title="원어민 발음 듣기 (1.0x)"
             className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-all active:scale-95"
           >
             <Volume2 className="w-4 h-4" />
@@ -243,6 +249,8 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
 
           <button
             onClick={() => handleListen(0.75)}
+            aria-label="현재 문장 느린 속도(0.75배속)로 천천히 듣기"
+            title="느리게 듣기 (0.75x)"
             className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all active:scale-95"
           >
             <span>🐢 느리게 듣기 (0.75x)</span>
@@ -254,6 +262,8 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
           <div className="mb-4">
             <button
               onClick={handleToggleRecord}
+              aria-label={isListening ? "녹음 중지 및 발음 일치도 채점하기" : "마이크 녹음을 시작하여 발음 연습하기"}
+              title={isListening ? "녹음 중지 및 채점" : "마이크 녹음 시작"}
               className={`w-16 h-16 rounded-3xl flex items-center justify-center text-white mx-auto shadow-lg transition-all active:scale-95 ${
                 isListening
                   ? 'bg-rose-500 hover:bg-rose-600 animate-mic-pulse ring-4 ring-rose-200'
@@ -330,6 +340,8 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
                   evaluateSpeech(text);
                 }
               }}
+              aria-label="텍스트를 직접 입력하여 발음 채점 기능 테스트하기"
+              title="텍스트로 발음 채점 테스트"
               className="text-[11px] text-slate-400 hover:text-indigo-600 underline font-medium"
             >
               텍스트로 발음 채점 테스트하기
@@ -342,6 +354,8 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
           <button
             onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
             disabled={currentIndex === 0}
+            aria-label="이전 섀도잉 문장으로 이동"
+            title="이전 문장"
             className={`inline-flex items-center space-x-1 px-4 py-2 rounded-xl text-xs font-bold ${
               currentIndex === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-700 hover:bg-slate-100'
             }`}
@@ -354,6 +368,8 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
             onClick={() => {
               handleListen(1.0);
             }}
+            aria-label="현재 문장 음성 다시 듣기"
+            title="다시 듣기"
             className="text-xs font-bold text-slate-500 hover:text-indigo-600 flex items-center space-x-1"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -363,6 +379,8 @@ export const ShadowingStudio: React.FC<ShadowingStudioProps> = ({
           <button
             onClick={() => setCurrentIndex((prev) => Math.min(sentences.length - 1, prev + 1))}
             disabled={currentIndex === sentences.length - 1}
+            aria-label="다음 섀도잉 문장으로 이동"
+            title="다음 문장"
             className={`inline-flex items-center space-x-1 px-4 py-2 rounded-xl text-xs font-bold ${
               currentIndex === sentences.length - 1
                 ? 'text-slate-300 cursor-not-allowed'

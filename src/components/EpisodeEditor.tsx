@@ -237,15 +237,20 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              aria-label="에피소드 날짜 선택"
               className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5" role="radiogroup" aria-label="오늘 나의 무드 선택">
             {MOODS.map((m) => (
               <button
                 type="button"
                 key={m.id}
+                role="radio"
+                aria-checked={mood === m.id}
+                aria-label={`오늘의 무드: ${m.label} (${m.desc})`}
+                title={`${m.label}: ${m.desc}`}
                 onClick={() => setMood(m.id)}
                 className={`p-3 rounded-2xl border text-center transition-all ${
                   mood === m.id
@@ -266,11 +271,15 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
           <label className="block text-sm font-bold text-slate-900 mb-3">
             에피소드 분야 (어디서 일어난 일인가요?)
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="에피소드 분야 선택">
             {CATEGORIES.map((cat) => (
               <button
                 type="button"
                 key={cat.id}
+                role="radio"
+                aria-checked={category === cat.id}
+                aria-label={`에피소드 분야: ${cat.label}`}
+                title={cat.label}
                 onClick={() => setCategory(cat.id)}
                 className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${
                   category === cat.id
@@ -296,6 +305,8 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
             <button
               type="button"
               onClick={toggleSpeechRecognition}
+              aria-label={isListening ? '음성 받아쓰기 중지하기' : '마이크 음성 받아쓰기 시작하기'}
+              title={isListening ? '음성 인식 중지' : '마이크 음성 받아쓰기'}
               className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 isListening
                   ? 'bg-rose-500 text-white animate-mic-pulse'
@@ -320,6 +331,7 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
             <textarea
               value={rawContent}
               onChange={(e) => setRawContent(e.target.value)}
+              aria-label="오늘 하루 일과 및 에피소드 내용 입력"
               placeholder="예) 오늘 출근길에 커피를 쏟을 뻔했는데 옆자리 승객이 티슈를 건네줘서 너무 고마웠다. 세상은 아직 따뜻해!&#10;혹은&#10;팀 미팅에서 내 아이디어가 채택되어 다음 주부터 프로젝트 리드를 맡게 되었다. 떨리지만 설렌다."
               rows={5}
               className="w-full px-4 py-3.5 rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 text-sm leading-relaxed placeholder:text-slate-400"
@@ -332,12 +344,14 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
           {/* Quick inspiration chips */}
           <div className="mt-3">
             <div className="text-xs font-semibold text-slate-500 mb-2">💡 아이디어가 고민된다면? 예시 에피소드 클릭:</div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" role="group" aria-label="예시 에피소드 템플릿">
               {PROMPT_INSPIRATIONS.map((insp, idx) => (
                 <button
                   type="button"
                   key={idx}
                   onClick={() => handleApplyInspiration(insp)}
+                  aria-label={`예시 에피소드 불러오기: ${insp.title}`}
+                  title={`예시 내용 적용: ${insp.title}`}
                   className="px-3 py-1.5 rounded-lg bg-indigo-50/60 hover:bg-indigo-100/80 text-indigo-700 text-xs font-medium border border-indigo-100 transition-colors"
                 >
                   ✨ {insp.title}
@@ -352,11 +366,15 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
           <label className="block text-sm font-bold text-slate-900 mb-3">
             원하는 영어 스토리 스타일 & 난이도
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" role="radiogroup" aria-label="영어 스토리 스타일 선택">
             {STYLES.map((st) => (
               <button
                 type="button"
                 key={st.id}
+                role="radio"
+                aria-checked={style === st.id}
+                aria-label={`영어 스타일: ${st.label} (난이도 ${st.level}, ${st.desc})`}
+                title={`${st.label} (${st.level})`}
                 onClick={() => setStyle(st.id)}
                 className={`p-4 rounded-2xl border text-left transition-all relative ${
                   style === st.id
@@ -388,6 +406,12 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
           <button
             type="submit"
             disabled={loading}
+            aria-label={
+              loading
+                ? 'AI 영어 스토리 및 스터디 자료를 생성하는 중입니다'
+                : '오늘 하루 일과로 AI 영어 스토리 및 섀도잉 학습 자료 생성하기'
+            }
+            title={loading ? '생성 중...' : 'AI 영어 스토리 & 스터디 생성하기'}
             className={`w-full py-4 px-6 rounded-2xl text-white font-bold text-base flex items-center justify-center space-x-2 shadow-lg transition-all ${
               loading
                 ? 'bg-slate-400 cursor-not-allowed'
