@@ -588,8 +588,18 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated, in
                     </button>
                   </div>
 
-                  {/* Actions: Speak & Copy */}
+                  {/* Actions: Speak, Copy & Refresh */}
                   <div className="flex items-center space-x-1.5">
+                    <button
+                      type="button"
+                      onClick={() => fetchTranslation(rawContent, style)}
+                      disabled={isTranslating}
+                      className="p-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-all"
+                      title="실시간 영어 다시 번역"
+                    >
+                      <RotateCcw className={`w-4 h-4 text-slate-500 ${isTranslating ? 'animate-spin' : ''}`} />
+                    </button>
+
                     <button
                       type="button"
                       onClick={handleToggleSpeak}
