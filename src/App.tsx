@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Navbar } from './components/Navbar';
 import { EpisodeEditor } from './components/EpisodeEditor';
+import { StudyCalendar } from './components/StudyCalendar';
 import { StoryView } from './components/StoryView';
 import { EpisodeList } from './components/EpisodeList';
 import { ShadowingStudio } from './components/ShadowingStudio';
@@ -22,10 +23,11 @@ import {
 import { calculateStudyStats } from './utils/studyLogic';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'create' | 'stories' | 'shadowing' | 'vocab'>('create');
+  const [currentTab, setCurrentTab] = useState<'create' | 'calendar' | 'stories' | 'shadowing' | 'vocab'>('create');
   const [episodes, setEpisodes] = useState<Episode[]>(() => loadEpisodes());
   const [savedWords, setSavedWords] = useState<SavedWord[]>(() => loadSavedWords());
   const [completedShadowIds, setCompletedShadowIds] = useState<string[]>(() => loadCompletedShadowing());
+  const [editorInitialDate, setEditorInitialDate] = useState<string | undefined>(undefined);
 
   // Active viewed episode (null means showing EpisodeList under 'stories' tab)
   const [activeEpisodeId, setActiveEpisodeId] = useState<string | null>(() => {
@@ -40,8 +42,8 @@ export default function App() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'stories' || tabParam === 'shadowing' || tabParam === 'vocab' || tabParam === 'create') {
-        setCurrentTab(tabParam);
+      if (tabParam === 'calendar' || tabParam === 'stories' || tabParam === 'shadowing' || tabParam === 'vocab' || tabParam === 'create') {
+        setCurrentTab(tabParam as any);
       }
     }
   }, []);
@@ -143,6 +145,18 @@ export default function App() {
     setCurrentTab('shadowing');
   };
 
+  const handleSaveEpisodeMemo = (episodeId: string, memo: string) => {
+    const updated = episodes.map((e) => (e.id === episodeId ? { ...e, memo } : e));
+    setEpisodes(updated);
+    saveEpisodes(updated);
+    showToast('💾 학습 메모가 달력에 저장되었습니다!');
+  };
+
+  const handleCreateEpisodeForDate = (dateStr: string) => {
+    setEditorInitialDate(dateStr);
+    setCurrentTab('create');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Toast popup */}
@@ -162,13 +176,34 @@ export default function App() {
           }
         }}
         stats={stats}
-        onNewEpisodeClick={() => setCurrentTab('create')}
+        onNewEpisodeClick={() => {
+          setEditorInitialDate(undefined);
+          setCurrentTab('create');
+        }}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 pb-16">
         {currentTab === 'create' && (
-          <EpisodeEditor onStoryCreated={handleStoryCreated} />
+          <EpisodeEditor
+            onStoryCreated={handleStoryCreated}
+            initialDate={editorInitialDate}
+          />
+        )}
+
+        {currentTab === 'calendar' && (
+          <StudyCalendar
+            episodes={episodes}
+            savedWords={savedWords}
+            completedSentenceIds={completedShadowSet}
+            onSelectEpisode={(ep) => {
+              setActiveEpisodeId(ep.id);
+              setCurrentTab('stories');
+            }}
+            onGoToShadowing={handleGoToShadowing}
+            onCreateEpisodeForDate={handleCreateEpisodeForDate}
+            onSaveEpisodeMemo={handleSaveEpisodeMemo}
+          />
         )}
 
         {currentTab === 'stories' && (
@@ -187,7 +222,10 @@ export default function App() {
                 onSelectEpisode={(ep) => setActiveEpisodeId(ep.id)}
                 onGoToShadowing={handleGoToShadowing}
                 onDeleteEpisode={handleDeleteEpisode}
-                onCreateNewClick={() => setCurrentTab('create')}
+                onCreateNewClick={() => {
+                  setEditorInitialDate(undefined);
+                  setCurrentTab('create');
+                }}
               />
             )}
           </>

@@ -6,6 +6,7 @@ import { createSpeechRecognizer, isSpeechRecognitionSupported } from '../utils/s
 interface EpisodeEditorProps {
   onStoryCreated: (episode: Episode) => void;
   onCancel?: () => void;
+  initialDate?: string;
 }
 
 const MOODS: Array<{ id: Mood; label: string; emoji: string; desc: string }> = [
@@ -80,8 +81,8 @@ const PROMPT_INSPIRATIONS = [
   },
 ];
 
-export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) => {
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated, initialDate }) => {
+  const [date, setDate] = useState(() => initialDate || new Date().toISOString().slice(0, 10));
   const [mood, setMood] = useState<Mood>('excited');
   const [category, setCategory] = useState<Category>('commute');
   const [style, setStyle] = useState<EnglishStyle>('vivid');
@@ -91,7 +92,57 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  // Instant Translation Preview State
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translationPreview, setTranslationPreview] = useState<{
+    literalEnglish: string;
+    styleDrafts: Record<string, string>;
+  } | null>(null);
+
+  // Sync date when initialDate changes
+  useEffect(() => {
+    if (initialDate) {
+      setDate(initialDate);
+    }
+  }, [initialDate]);
+
   const recognizerRef = useRef<{ start: () => void; stop: () => void; abort: () => void } | null>(null);
+
+  // Clear translation preview if content changes
+  const handleContentChange = (val: string) => {
+    setRawContent(val);
+    if (translationPreview) {
+      setTranslationPreview(null);
+    }
+  };
+
+  // Instant English translation check
+  const handleCheckTranslation = async () => {
+    if (!rawContent.trim()) {
+      setError('먼저 일과 내용을 입력해주세요!');
+      return;
+    }
+    setError(null);
+    setIsTranslating(true);
+    try {
+      const res = await fetch('/api/instant-translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rawContent: rawContent.trim(), englishStyle: style }),
+      });
+      if (!res.ok) throw new Error('번역 요청 실패');
+      const data = await res.json();
+      setTranslationPreview({
+        literalEnglish: data.literalEnglish,
+        styleDrafts: data.styleDrafts || {},
+      });
+    } catch (err) {
+      console.error(err);
+      setError('영어 번역 확인 중 오류가 발생했습니다.');
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   // Loading step simulation
   useEffect(() => {
@@ -313,15 +364,55 @@ export const EpisodeEditor: React.FC<EpisodeEditorProps> = ({ onStoryCreated }) 
           <div className="relative">
             <textarea
               value={rawContent}
-              onChange={(e) => setRawContent(e.target.value)}
+              onChange={(e) => handleContentChange(e.target.value)}
               placeholder="예) 오늘 출근길에 커피를 쏟을 뻔했는데 옆자리 승객이 티슈를 건네줘서 너무 고마웠다. 세상은 아직 따뜻해!&#10;혹은&#10;팀 미팅에서 내 아이디어가 채택되어 다음 주부터 프로젝트 리드를 맡게 되었다. 떨리지만 설렌다."
               rows={5}
               className="w-full px-4 py-3.5 rounded-2xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-slate-800 text-sm leading-relaxed placeholder:text-slate-400"
             />
-            <div className="text-right mt-1.5 text-xs text-slate-400">
-              {rawContent.length}자 입력됨
+            <div className="flex items-center justify-between mt-1.5 text-xs text-slate-400">
+              <button
+                type="button"
+                onClick={handleCheckTranslation}
+                disabled={isTranslating || !rawContent.trim()}
+                className="inline-flex items-center space-x-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 disabled:opacity-50 transition-colors"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>{isTranslating ? '영어 번역 분석 중...' : '⚡ 작성 내용 영어로 번역 미리보기 & 확인'}</span>
+              </button>
+
+              <span>{rawContent.length}자 입력됨</span>
             </div>
           </div>
+
+          {/* Translation Preview & Verification Card */}
+          {translationPreview && (
+            <div className="mt-4 p-4 rounded-2xl bg-indigo-50/70 border-2 border-indigo-200/90 space-y-3 animate-in fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                  <span className="text-xs font-extrabold text-indigo-900 uppercase tracking-wide">
+                    영어 번역 확인 완료 (English Verification)
+                  </span>
+                </div>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                  영어로 정상 변환됨 ✓
+                </span>
+              </div>
+
+              <div className="bg-white p-3.5 rounded-xl border border-indigo-100 text-xs space-y-2">
+                <div>
+                  <span className="font-bold text-slate-400">🇺🇸 영어 번역 초안:</span>
+                  <p className="font-semibold text-slate-900 mt-0.5">
+                    "{translationPreview.literalEnglish}"
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-indigo-700 leading-snug">
+                💡 입력하신 내용이 영어로 확인되었습니다. 아래 <strong>스토리 스타일</strong>을 선택한 후 <strong>생성하기</strong>를 누르면 섀도잉 및 관용구 학습 코스가 바로 생성됩니다.
+              </p>
+            </div>
+          )}
 
           {/* Quick inspiration chips */}
           <div className="mt-3">

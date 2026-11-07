@@ -1,10 +1,10 @@
 import React from 'react';
-import { BookOpen, Mic, Bookmark, Sparkles, Flame, PlusCircle, History } from 'lucide-react';
+import { BookOpen, Mic, Bookmark, Sparkles, Flame, PlusCircle, History, Calendar } from 'lucide-react';
 import { StudyStats } from '../types';
 
 interface NavbarProps {
-  currentTab: 'create' | 'stories' | 'shadowing' | 'vocab';
-  onSelectTab: (tab: 'create' | 'stories' | 'shadowing' | 'vocab') => void;
+  currentTab: 'create' | 'calendar' | 'stories' | 'shadowing' | 'vocab';
+  onSelectTab: (tab: 'create' | 'calendar' | 'stories' | 'shadowing' | 'vocab') => void;
   stats: StudyStats;
   onNewEpisodeClick: () => void;
 }
@@ -93,6 +93,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
+            onClick={() => onSelectTab('calendar')}
+            className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+              currentTab === 'calendar'
+                ? 'bg-indigo-50 text-indigo-700'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            <span>학습 달력 & 일지</span>
+          </button>
+
+          <button
             onClick={() => onSelectTab('stories')}
             className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
               currentTab === 'stories'
@@ -132,3 +144,4 @@ export const Navbar: React.FC<NavbarProps> = ({
     </header>
   );
 };
+

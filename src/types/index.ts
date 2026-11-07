@@ -59,7 +59,17 @@ export interface Episode {
   quizQuestions: QuizQuestion[];
   isFavorite?: boolean;
   studiedAt?: string;
+  memo?: string; // Daily study reflection or note
 }
+
+export interface DailyStudyLog {
+  date: string; // YYYY-MM-DD
+  memo?: string;
+  completedShadowingCount: number;
+  savedWordsCount: number;
+  studied: boolean;
+}
+
 
 export interface SavedWord extends KeyExpression {
   episodeId: string;

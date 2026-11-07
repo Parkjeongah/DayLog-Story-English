@@ -7,6 +7,8 @@ import {
   tokenizeSentences,
   calculateStreak,
   filterEpisodes,
+  getCalendarGrid,
+  formatKoreanDate,
 } from './studyLogic';
 import { Episode } from '../types';
 
@@ -148,3 +150,22 @@ test('filterEpisodes filters by keyword and category correctly', () => {
   assert.equal(searchCategory.length, 1);
   assert.equal(searchCategory[0].id, 'ep-2');
 });
+
+test('getCalendarGrid returns full 7-column calendar matrix with valid day counts', () => {
+  // Test November 2026 (November 1, 2026 is Sunday, 30 days)
+  const grid = getCalendarGrid(2026, 10, new Date('2026-11-06T10:00:00Z'));
+  assert.ok(grid.length >= 35, `Grid length was ${grid.length}, expected >= 35`);
+  assert.equal(grid.length % 7, 0);
+
+  const nov6 = grid.find((cell) => cell.date === '2026-11-06');
+  assert.ok(nov6, 'Nov 6 should be in calendar grid');
+  assert.equal(nov6?.dayNumber, 6);
+  assert.equal(nov6?.isToday, true);
+  assert.equal(nov6?.isCurrentMonth, true);
+});
+
+test('formatKoreanDate produces human-readable Korean date with day of week', () => {
+  const result = formatKoreanDate('2026-11-06');
+  assert.equal(result, '2026년 11월 6일 금요일');
+});
+

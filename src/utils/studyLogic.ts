@@ -256,3 +256,92 @@ export function calculateStudyStats(
     isTodayLogged: streakInfo.isTodayLogged,
   };
 }
+
+export interface CalendarDayCell {
+  date: string; // YYYY-MM-DD
+  dayNumber: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  dayOfWeek: number; // 0 = Sunday, 6 = Saturday
+}
+
+/**
+ * Computes a standard 7-column calendar matrix for the specified year and month (0-indexed).
+ */
+export function getCalendarGrid(year: number, monthIndex: number, referenceDate: Date = new Date()): CalendarDayCell[] {
+  const todayStr = `${referenceDate.getFullYear()}-${String(referenceDate.getMonth() + 1).padStart(2, '0')}-${String(referenceDate.getDate()).padStart(2, '0')}`;
+
+  const firstDayOfMonth = new Date(year, monthIndex, 1);
+  const firstDayWeekday = firstDayOfMonth.getDay(); // 0 is Sunday
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, monthIndex, 0).getDate();
+
+  const cells: CalendarDayCell[] = [];
+
+  // Previous month padding days
+  for (let i = firstDayWeekday - 1; i >= 0; i--) {
+    const day = daysInPrevMonth - i;
+    const prevMonthDate = new Date(year, monthIndex - 1, day);
+    const dateStr = `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    cells.push({
+      date: dateStr,
+      dayNumber: day,
+      isCurrentMonth: false,
+      isToday: dateStr === todayStr,
+      dayOfWeek: prevMonthDate.getDay(),
+    });
+  }
+
+  // Current month days
+  for (let day = 1; day <= daysInMonth; day++) {
+    const currDate = new Date(year, monthIndex, day);
+    const dateStr = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    cells.push({
+      date: dateStr,
+      dayNumber: day,
+      isCurrentMonth: true,
+      isToday: dateStr === todayStr,
+      dayOfWeek: currDate.getDay(),
+    });
+  }
+
+  // Next month padding days to complete rows (up to multiple of 7, min 35 or 42)
+  const remaining = (7 - (cells.length % 7)) % 7;
+  const targetTotal = cells.length + remaining < 35 ? cells.length + remaining + 7 : cells.length + remaining;
+
+  let nextMonthDay = 1;
+  while (cells.length < targetTotal) {
+    const nextDate = new Date(year, monthIndex + 1, nextMonthDay);
+    const dateStr = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}-${String(nextMonthDay).padStart(2, '0')}`;
+    cells.push({
+      date: dateStr,
+      dayNumber: nextMonthDay,
+      isCurrentMonth: false,
+      isToday: dateStr === todayStr,
+      dayOfWeek: nextDate.getDay(),
+    });
+    nextMonthDay++;
+  }
+
+  return cells;
+}
+
+/**
+ * Formats a YYYY-MM-DD string into friendly Korean date (e.g. "2026년 11월 6일 금요일").
+ */
+export function formatKoreanDate(dateStr: string): string {
+  if (!dateStr) return '';
+  const parts = dateStr.slice(0, 10).split('-');
+  if (parts.length < 3) return dateStr;
+
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+
+  const date = new Date(year, month - 1, day);
+  const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+  const weekday = weekdays[date.getDay()] || '';
+
+  return `${year}년 ${month}월 ${day}일 ${weekday}`;
+}
+

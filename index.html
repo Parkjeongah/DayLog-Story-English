@@ -9,6 +9,106 @@
     <meta property="og:description" content="하루 일과와 일상 에피소드를 생생한 영어 스토리로 바꾸어 섀도잉, 원어민 뉘앙스, 퀴즈로 공부하는 영어 학습 앱" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="DayLog" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <script>
+      // In sandbox iframe/Cloud Run environments, HMR WebSockets are not proxied.
+      // Provide a clean mock socket for Vite's HMR client to prevent 'WebSocket closed without opened' errors.
+      (function() {
+        const OriginalWebSocket = window.WebSocket;
+        if (OriginalWebSocket) {
+          window.WebSocket = function(url, protocols) {
+            const urlStr = String(url || '');
+            const protoStr = Array.isArray(protocols) ? protocols.join(',') : String(protocols || '');
+            const isViteHmr =
+              protoStr.includes('vite-hmr') ||
+              urlStr.includes('vite-hmr') ||
+              urlStr.includes('24678') ||
+              urlStr.includes('@vite');
+
+            if (isViteHmr) {
+              const dummy = new EventTarget();
+              dummy.binaryType = 'blob';
+              dummy.readyState = 1; // OPEN
+              dummy.url = urlStr;
+              dummy.protocol = 'vite-hmr';
+              dummy.send = function() {};
+              dummy.close = function() { dummy.readyState = 3; };
+              setTimeout(function() {
+                const openEvt = new Event('open');
+                if (typeof dummy.onopen === 'function') dummy.onopen(openEvt);
+                dummy.dispatchEvent(openEvt);
+              }, 0);
+              return dummy;
+            }
+            return new OriginalWebSocket(url, protocols);
+          };
+          window.WebSocket.prototype = OriginalWebSocket.prototype;
+          window.WebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
+          window.WebSocket.OPEN = OriginalWebSocket.OPEN;
+          window.WebSocket.CLOSING = OriginalWebSocket.CLOSING;
+          window.WebSocket.CLOSED = OriginalWebSocket.CLOSED;
+        }
+
+        // Suppress harmless Vite HMR WebSocket connection logs and unhandled rejections
+        const origConsoleError = console.error;
+        console.error = function(...args) {
+          const first = typeof args[0] === 'string' ? args[0] : '';
+          if (
+            first.includes('[vite]') &&
+            (first.includes('websocket') ||
+              first.includes('WebSocket') ||
+              first.includes('server connection lost') ||
+              first.includes('failed to connect'))
+          ) {
+            return;
+          }
+          origConsoleError.apply(console, args);
+        };
+
+        window.addEventListener(
+          'error',
+          function (e) {
+            const msg = (e && (e.message || (e.error && e.error.message))) || '';
+            if (
+              msg.includes('WebSocket') ||
+              msg.includes('ws://') ||
+              msg.includes('wss://') ||
+              msg.includes('[vite]')
+            ) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              return true;
+            }
+          },
+          true
+        );
+
+        window.addEventListener(
+          'unhandledrejection',
+          function (e) {
+            const reason = (e && (e.reason && (e.reason.message || String(e.reason)))) || '';
+            if (
+              reason.includes('WebSocket') ||
+              reason.includes('ws://') ||
+              reason.includes('wss://') ||
+              reason.includes('[vite]')
+            ) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              return true;
+            }
+          },
+          true
+        );
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
