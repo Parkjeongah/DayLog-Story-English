@@ -16,9 +16,10 @@ app.use(express.json({ limit: '10mb' }));
 
 // Server-side Gemini initialization
 const apiKey = process.env.GEMINI_API_KEY;
-const ai = apiKey
+const isValidApiKey = Boolean(apiKey && apiKey !== 'MY_GEMINI_API_KEY' && apiKey.trim().length > 10);
+const ai = isValidApiKey
   ? new GoogleGenAI({
-      apiKey,
+      apiKey: apiKey!,
       httpOptions: {
         headers: {
           'User-Agent': 'aistudio-build',
@@ -31,8 +32,8 @@ const ai = apiKey
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
-    hasGeminiKey: Boolean(apiKey),
-    model: 'gemini-3.8-flash',
+    hasGeminiKey: isValidApiKey,
+    model: 'gemini-2.5-flash',
   });
 });
 
@@ -140,22 +141,67 @@ const STORY_SCHEMA = {
   ],
 };
 
-// Reliable Korean to English translator helper
-async function translateKoreanToEnglish(text: string): Promise<string> {
-  if (!text || !text.trim()) return '';
+// Reliable Korean to English translator helper with sentence-pair extraction
+async function translateWithPairs(text: string): Promise<{ fullEnglish: string; pairs: Array<{ ko: string; en: string }> }> {
+  if (!text || !text.trim()) return { fullEnglish: '', pairs: [] };
   try {
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=en&dt=t&q=${encodeURIComponent(text.trim())}`;
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
     if (!res.ok) throw new Error('Translation failed');
     const data: any = await res.json();
     if (Array.isArray(data) && Array.isArray(data[0])) {
-      return data[0].map((item: any) => item[0]).join('').trim();
+      const validItems = data[0].filter((item: any) => Array.isArray(item) && typeof item[0] === 'string');
+      const pairs = validItems.map((item: any) => ({
+        en: String(item[0]).trim(),
+        ko: String(item[1] || '').trim(),
+      }));
+      const fullEnglish = validItems.map((item: any) => item[0]).join('').trim();
+      if (fullEnglish) {
+        return { fullEnglish, pairs };
+      }
     }
   } catch (err) {
     console.error('Translation helper error:', err);
   }
-  return text;
+  return { fullEnglish: text, pairs: [{ ko: text, en: text }] };
 }
+
+async function translateKoreanToEnglish(text: string): Promise<string> {
+  const result = await translateWithPairs(text);
+  return result.fullEnglish;
+}
+
+// Instant Translation & Verification Endpoint
+app.post('/api/instant-translate', async (req: Request, res: Response) => {
+  try {
+    const { rawContent } = req.body;
+    if (!rawContent || typeof rawContent !== 'string' || !rawContent.trim()) {
+      res.status(400).json({ error: '번역할 내용을 입력해주세요.' });
+      return;
+    }
+
+    const { fullEnglish, pairs } = await translateWithPairs(rawContent.trim());
+
+    // Generate style-specific variations
+    const styleDrafts = {
+      casual: fullEnglish,
+      vivid: `Let me tell you about what happened today: ${fullEnglish}`,
+      professional: `Reflecting upon today's events, ${fullEnglish.charAt(0).toLowerCase() + fullEnglish.slice(1)}`,
+      short_reel: `${fullEnglish} #DailyDiary #DayLog`,
+    };
+
+    res.json({
+      originalKorean: rawContent.trim(),
+      literalEnglish: fullEnglish,
+      naturalEnglish: fullEnglish,
+      styleDrafts,
+      sentencePairs: pairs,
+    });
+  } catch (err: any) {
+    console.error('Instant translation error:', err);
+    res.status(500).json({ error: '번역 중 오류가 발생했습니다.' });
+  }
+});
 
 // Fallback generator when AI key is missing or quota is exceeded
 async function generateFallbackStory(
@@ -365,37 +411,6 @@ async function generateFallbackStory(
 }
 
 
-// Instant Translation & Verification Endpoint
-app.post('/api/instant-translate', async (req: Request, res: Response) => {
-  try {
-    const { rawContent, englishStyle = 'casual' } = req.body;
-    if (!rawContent || typeof rawContent !== 'string' || !rawContent.trim()) {
-      res.status(400).json({ error: '번역할 내용을 입력해주세요.' });
-      return;
-    }
-
-    const literalEnglish = await translateKoreanToEnglish(rawContent.trim());
-
-    // Generate style-specific variations
-    const styleDrafts = {
-      casual: `I wanted to write about what happened: ${literalEnglish}`,
-      vivid: `Let me tell you about today: ${literalEnglish}`,
-      professional: `Reflecting upon today's events: ${literalEnglish}`,
-      short_reel: `${literalEnglish} #DailyDiary #DayLog`,
-    };
-
-    res.json({
-      originalKorean: rawContent.trim(),
-      literalEnglish,
-      naturalEnglish: literalEnglish,
-      styleDrafts,
-    });
-  } catch (err: any) {
-    console.error('Instant translation error:', err);
-    res.status(500).json({ error: '번역 중 오류가 발생했습니다.' });
-  }
-});
-
 // Generate Story Endpoint
 app.post('/api/generate-story', async (req: Request, res: Response) => {
   try {
@@ -442,7 +457,7 @@ Produce valid JSON matching the schema strictly.
 `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
