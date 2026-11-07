@@ -20,7 +20,6 @@ import {
   saveCompletedShadowing,
 } from './utils/storage';
 import { calculateStudyStats } from './utils/studyLogic';
-import { OfflineIndicator } from './components/OfflineIndicator';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<'create' | 'stories' | 'shadowing' | 'vocab'>('create');
@@ -152,9 +151,6 @@ export default function App() {
           <span>{toastMessage}</span>
         </div>
       )}
-
-      {/* Offline Status Alert */}
-      <OfflineIndicator />
 
       {/* Global Navbar */}
       <Navbar

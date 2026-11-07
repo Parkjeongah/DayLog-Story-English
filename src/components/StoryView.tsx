@@ -117,8 +117,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
       {onBack && (
         <button
           onClick={onBack}
-          aria-label="에피소드 목록으로 돌아가기"
-          title="에피소드 목록으로 돌아가기"
           className="inline-flex items-center space-x-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -158,8 +156,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={handlePlayFullStory}
-              aria-label={isPlaying ? "스토리 재생 일시정지" : "스토리 전체 원어민 음성으로 듣기"}
-              title={isPlaying ? "일시정지" : "스토리 전체 듣기"}
               className={`inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-sm whitespace-nowrap shrink-0 transition-all ${
                 isPlaying
                   ? 'bg-rose-500 hover:bg-rose-600 text-white animate-pulse'
@@ -183,24 +179,18 @@ export const StoryView: React.FC<StoryViewProps> = ({
             <div className="flex items-center space-x-1 bg-slate-100 rounded-xl p-1 text-xs font-bold text-slate-700 shrink-0">
               <button
                 onClick={() => setPlaybackSpeed(0.8)}
-                aria-label="재생 속도 0.8배속으로 변경"
-                title="0.8배속"
                 className={`px-2 py-1 rounded-lg ${playbackSpeed === 0.8 ? 'bg-white shadow-xs text-indigo-600' : ''}`}
               >
                 0.8x
               </button>
               <button
                 onClick={() => setPlaybackSpeed(1.0)}
-                aria-label="재생 속도 1.0 보통 배속으로 변경"
-                title="1.0배속"
                 className={`px-2 py-1 rounded-lg ${playbackSpeed === 1.0 ? 'bg-white shadow-xs text-indigo-600' : ''}`}
               >
                 1.0x
               </button>
               <button
                 onClick={() => setPlaybackSpeed(1.2)}
-                aria-label="재생 속도 1.2 빠른 배속으로 변경"
-                title="1.2배속"
                 className={`px-2 py-1 rounded-lg ${playbackSpeed === 1.2 ? 'bg-white shadow-xs text-indigo-600' : ''}`}
               >
                 1.2x
@@ -210,8 +200,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
             <select
               value={accent}
               onChange={(e) => setAccent(e.target.value as 'en-US' | 'en-GB')}
-              aria-label="영어 발음 억양 선택 (미국식 또는 영국식)"
-              title="발음 억양 선택"
               className="px-2.5 py-1.5 bg-slate-100 border-none rounded-xl text-xs font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500 shrink-0"
             >
               <option value="en-US">🇺🇸 미국식</option>
@@ -222,8 +210,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
           <div className="flex items-center space-x-2">
             <button
               onClick={() => onGoToShadowing(episode.id)}
-              aria-label={`해당 에피소드 섀도잉 연습하러 가기 (${episode.shadowingSentences.length}문장)`}
-              title="섀도잉 연습"
               className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold border border-emerald-200 transition-colors whitespace-nowrap"
             >
               <Mic className="w-4 h-4" />
@@ -232,8 +218,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
 
             <button
               onClick={handleCopyStory}
-              aria-label="스토리 본문 및 번역 텍스트 클립보드에 복사하기"
-              title="텍스트 복사"
               className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors whitespace-nowrap"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
@@ -331,7 +315,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
                   </div>
                   <button
                     onClick={() => handlePlaySingle(para.en)}
-                    aria-label={`이 문단 원어민 발음 듣기: "${para.en.slice(0, 30)}..."`}
                     className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors shrink-0"
                     title="이 문단 발음 듣기"
                   >
@@ -386,7 +369,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
                     <div className="flex items-center space-x-1.5">
                       <button
                         onClick={() => handlePlaySingle(expr.phrase)}
-                        aria-label={`"${expr.phrase}" 표현 발음 듣기`}
                         className="p-2 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition-colors"
                         title="표현 발음 듣기"
                       >
@@ -395,13 +377,12 @@ export const StoryView: React.FC<StoryViewProps> = ({
 
                       <button
                         onClick={() => onToggleSaveWord(expr, episode)}
-                        aria-label={isSaved ? `"${expr.phrase}" 단어장에서 삭제하기` : `"${expr.phrase}" 단어장에 저장하기`}
                         className={`p-2 rounded-xl transition-colors ${
                           isSaved
                             ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
                             : 'bg-slate-100 text-slate-400 hover:text-slate-700 hover:bg-slate-200'
                         }`}
-                        title={isSaved ? '단어장에 저장됨 (클릭하여 삭제)' : '단어장에 추가'}
+                        title={isSaved ? '단어장에 저장됨' : '단어장에 추가'}
                       >
                         {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
                       </button>
@@ -422,9 +403,7 @@ export const StoryView: React.FC<StoryViewProps> = ({
                     </div>
                     <button
                       onClick={() => handlePlaySingle(expr.usageExample)}
-                      aria-label={`"${expr.usageExample}" 예문 발음 듣기`}
-                      title="예문 발음 듣기"
-                      className="text-indigo-600 hover:text-indigo-800 p-1 rounded-lg"
+                      className="text-indigo-600 hover:text-indigo-800 p-1"
                     >
                       <Volume2 className="w-3.5 h-3.5" />
                     </button>
@@ -434,8 +413,6 @@ export const StoryView: React.FC<StoryViewProps> = ({
                   <div>
                     <button
                       onClick={() => handleExpandExpression(expr)}
-                      aria-label={expanded ? `"${expr.phrase}" 실생활 대화 예시 접기` : `"${expr.phrase}" 실생활 대화 예시 2가지 펼쳐보기`}
-                      title="실생활 회화 예시"
                       className="inline-flex items-center space-x-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
@@ -505,9 +482,7 @@ export const StoryView: React.FC<StoryViewProps> = ({
                       </span>
                       <button
                         onClick={() => handlePlaySingle(item.naturalNative)}
-                        aria-label={`"${item.naturalNative}" 원어민 표현 발음 듣기`}
-                        title="원어민 표현 발음 듣기"
-                        className="text-emerald-700 hover:text-emerald-900 p-1 rounded-lg transition-colors"
+                        className="text-emerald-700 hover:text-emerald-900"
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                       </button>

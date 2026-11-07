@@ -1,7 +1,6 @@
 import React from 'react';
 import { BookOpen, Mic, Bookmark, Sparkles, Flame, PlusCircle, History } from 'lucide-react';
 import { StudyStats } from '../types';
-import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
   currentTab: 'create' | 'stories' | 'shadowing' | 'vocab';
@@ -21,20 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label="DayLog Story English 홈 및 일과 작성 화면으로 이동"
-            title="DayLog 홈"
-            className="flex items-center space-x-3 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-xl p-1"
-            onClick={() => onSelectTab('create')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onSelectTab('create');
-              }
-            }}
-          >
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onSelectTab('create')}>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 flex items-center justify-center text-white shadow-md shadow-indigo-200">
               <Sparkles className="w-5 h-5" />
             </div>
@@ -50,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Stats Badges */}
-          <div className="hidden md:flex items-center space-x-3" aria-label="나의 학습 현황 요약">
+          <div className="hidden md:flex items-center space-x-3">
             <div
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold ${
                 stats.currentStreak > 0
@@ -58,7 +44,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                   : 'bg-slate-50 border-slate-200 text-slate-600'
               }`}
               title="연속 기록 스트릭"
-              aria-label={`현재 연속 학습 ${stats.currentStreak}일`}
             >
               <Flame className={`w-4 h-4 ${stats.currentStreak > 0 ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
               <span>{stats.currentStreak}일 연속 학습</span>
@@ -67,7 +52,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div
               className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700"
               title="누적 작성된 에피소드"
-              aria-label={`누적 작성된 에피소드 ${stats.totalEpisodes}개`}
             >
               <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
               <span>{stats.totalEpisodes}개 에피소드</span>
@@ -76,22 +60,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div
               className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700"
               title="단어장에 저장된 핵심 표현"
-              aria-label={`단어장에 저장된 핵심 표현 ${stats.savedWordsCount}개`}
             >
               <Bookmark className="w-3.5 h-3.5 text-emerald-500" />
               <span>{stats.savedWordsCount}개 표현</span>
             </div>
           </div>
 
-          {/* Actions: PWA Install + New Episode */}
+          {/* New Episode Action Button */}
           <div className="flex items-center space-x-2">
-            <PWAInstallButton variant="navbar" />
-
             <button
               onClick={onNewEpisodeClick}
-              aria-label="새로운 하루 일과 기록 작성 시작하기"
-              title="새 일과 기록하기"
-              className="inline-flex items-center space-x-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all active:scale-95"
+              className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all active:scale-95"
             >
               <PlusCircle className="w-4 h-4" />
               <span>일과 기록하기</span>
@@ -100,12 +79,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Navigation Tabs */}
-        <nav className="flex space-x-1 sm:space-x-2 border-t border-slate-100 overflow-x-auto py-1 scrollbar-none" role="tablist" aria-label="메인 기능 메뉴">
+        <nav className="flex space-x-1 sm:space-x-2 border-t border-slate-100 overflow-x-auto py-1 scrollbar-none">
           <button
-            role="tab"
-            aria-selected={currentTab === 'create'}
-            aria-label="새 일과 작성 탭 열기"
-            title="새 일과 작성"
             onClick={() => onSelectTab('create')}
             className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
               currentTab === 'create'
@@ -118,10 +93,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            role="tab"
-            aria-selected={currentTab === 'stories'}
-            aria-label={`스토리 타임라인 탭 열기 (총 ${stats.totalEpisodes}개 에피소드)`}
-            title="스토리 타임라인"
             onClick={() => onSelectTab('stories')}
             className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
               currentTab === 'stories'
@@ -134,10 +105,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            role="tab"
-            aria-selected={currentTab === 'shadowing'}
-            aria-label="섀도잉 스튜디오 탭 열기 (음성 발음 연습 및 유사도 분석)"
-            title="섀도잉 스튜디오"
             onClick={() => onSelectTab('shadowing')}
             className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
               currentTab === 'shadowing'
@@ -150,10 +117,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           <button
-            role="tab"
-            aria-selected={currentTab === 'vocab'}
-            aria-label={`표현 단어장 및 플래시카드 퀴즈 탭 열기 (저장된 표현 ${stats.savedWordsCount}개)`}
-            title="표현 단어장 & 퀴즈"
             onClick={() => onSelectTab('vocab')}
             className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
               currentTab === 'vocab'

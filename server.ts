@@ -1,6 +1,3 @@
-// Enforce disabled HMR in AI Studio sandbox environment to prevent WebSocket disconnection errors
-process.env.DISABLE_HMR = 'true';
-
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -16,7 +13,6 @@ const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.resolve(__dirname, 'public')));
 
 // Server-side Gemini initialization
 const apiKey = process.env.GEMINI_API_KEY;
@@ -396,11 +392,7 @@ async function startServer() {
   if (isDev) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: {
-        middlewareMode: true,
-        hmr: false,
-        ws: false,
-      },
+      server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
